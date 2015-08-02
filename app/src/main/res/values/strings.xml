@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">MessagingApp</string>
 
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="title_section1">in-box</string>
+    <string name="title_section2">friends</string>
+
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_login">LoginActivity</string>
@@ -22,7 +22,9 @@
     <string name="login_error_title">Oops!</string>
     <string name="menu_logout_label">Logout</string>
 
-    <string name="hello_world">Hello world!</string>
+    <string name="empty_message_inbox_label">No new messages</string>
+    <string name="empty_message_friends_label">Let\'s add friends</string>
+
 
 
 
