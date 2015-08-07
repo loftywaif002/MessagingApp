@@ -21,9 +21,16 @@
     <string name="login_error_message">Please make sure you enter a username and password!</string>
     <string name="login_error_title">Oops!</string>
     <string name="menu_logout_label">Logout</string>
+    <string name="menu_editfriends_label">Edit Friends</string>
+    <string name="menu_edit_friends_label">Edit Friends</string>
+    <string name="error_title">We\'re Sorry</string>
+
 
     <string name="empty_message_inbox_label">No new messages</string>
     <string name="empty_message_friends_label">Let\'s add friends</string>
+    <string name="title_activity_edit_friends">Edit Friends</string>
+
+    <string name="hello_world">Hello world!</string>
 
 
 
