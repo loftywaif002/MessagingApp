@@ -25,7 +25,7 @@
     <string name="menu_edit_friends_label">Edit Friends</string>
     <string name="error_title">We\'re Sorry</string>
 
-
+    <string name="menu_camera_label">Camera</string>
     <string name="empty_message_inbox_label">No new messages</string>
     <string name="empty_message_friends_label">Let\'s add friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
