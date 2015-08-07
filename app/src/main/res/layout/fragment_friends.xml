@@ -20,4 +20,6 @@
         android:layout_height="wrap_content"
         android:text="@string/empty_message_friends_label"
         />
+
+
 </RelativeLayout>

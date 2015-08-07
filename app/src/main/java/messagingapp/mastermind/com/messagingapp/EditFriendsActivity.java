@@ -29,9 +29,7 @@ public class EditFriendsActivity extends ListActivity {
     protected List<ParseUser> mUsers;
 
     protected ParseRelation<ParseUser> mFriendsRelation;
-
     protected ParseUser mCurrentUser;
-
     private ProgressBar mProgressBar;
 
     @Override
@@ -68,8 +66,7 @@ public class EditFriendsActivity extends ListActivity {
             public void done(List<ParseUser> users, ParseException e) {
 
                 mProgressBar.setVisibility(View.INVISIBLE);
-                if(e==null)
-                {
+                if (e == null) {
                     //Success
 
                     mUsers = users;
@@ -77,17 +74,17 @@ public class EditFriendsActivity extends ListActivity {
 
                     //For loop to iterate through the list of users
                     int i = 0;
-                    for (ParseUser user:mUsers){
+                    for (ParseUser user : mUsers) {
 
                         usernames[i] = user.getUsername();
                         i++;
                     }
 
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(EditFriendsActivity.this,android.R.layout.simple_list_item_checked,usernames);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(EditFriendsActivity.this, android.R.layout.simple_list_item_checked, usernames);
                     setListAdapter(adapter);
 
-                }
-                else{
+                    addFriendCheckmarks();
+                } else {
                     Log.e(TAG, e.getMessage());
                     AlertDialog.Builder builder = new AlertDialog.Builder(EditFriendsActivity.this);
                     builder.setMessage(e.getMessage())
@@ -103,12 +100,6 @@ public class EditFriendsActivity extends ListActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_edit_friends, menu);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -133,23 +124,55 @@ public class EditFriendsActivity extends ListActivity {
          //add friend
             mFriendsRelation.add(mUsers.get(position));
 
-            mCurrentUser.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e!=null){
-                        Log.e(TAG,e.getMessage());
-
-                    }
-                }
-            });
-
         }
 
         else{
          //remove friends
 
+         mFriendsRelation.remove(mUsers.get(position));
+
         }
 
+        mCurrentUser.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e!=null){
+                    Log.e(TAG,e.getMessage());
+
+                }
+            }
+        });
+
+
+    }
+
+    public void addFriendCheckmarks(){
+        mFriendsRelation.getQuery().findInBackground(new FindCallback<ParseUser>() {
+            @Override
+            public void done(List<ParseUser> friends, ParseException e) {
+                if(e==null)
+                {
+                    //list returned
+                    for(int i= 0; i<mUsers.size();i++)
+                    {
+                        ParseUser user = mUsers.get(i);
+
+                        for(ParseUser friend:friends){
+
+                            if(friend.getObjectId().equals(mCurrentUser.getObjectId())){
+                                getListView().setItemChecked(i,true);
+                            }
+                        }
+                    }
+
+
+                }
+                else
+                {
+                 Log.e(TAG,e.getMessage());
+                }
+            }
+        });
 
 
     }
