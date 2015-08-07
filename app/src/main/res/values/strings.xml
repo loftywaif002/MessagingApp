@@ -30,7 +30,16 @@
     <string name="empty_message_friends_label">Let\'s add friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
 
-    <string name="hello_world">Hello world!</string>
+   <string-array name="camera_choices">
+
+       <item>Take Picture</item>
+       <item>Take Video</item>
+       <item>Choose Picture</item>
+       <item>Choose Video</item>
+
+   </string-array>>
+
+
 
 
 
