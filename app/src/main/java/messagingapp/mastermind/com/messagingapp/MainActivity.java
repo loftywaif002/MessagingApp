@@ -3,6 +3,9 @@ package messagingapp.mastermind.com.messagingapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -17,14 +20,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.parse.ParseAnalytics;
 import com.parse.ParseUser;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
        public static final String TAG = MainActivity.class.getSimpleName();
+
+       public  static final int TAKE_PHOTO_REQUEST = 0;
+       public  static final int TAKE_VIDEO_REQUEST = 1;
+       public  static final int PICK_PHOTO_REQUEST = 2;
+       public  static final int PICK_VIDEO_REQUEST = 3;
+
+       public static final int MEDIA_TYPE_IMAGE = 4;
+       public static final int MEDIA_TYPE_VIDEO = 5;
+
+       public static final int FILE_SIZE_LIMIT = 1024 * 1024 * 10;  //10MB
+
+
+       protected Uri mMediaUri;
 
        protected DialogInterface.OnClickListener mDialogListener =
                new DialogInterface.OnClickListener() {
@@ -35,23 +60,140 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
               switch(which){
                   case 0:  //Take Picture
 
+                  Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                      mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+                   
+                      //Display an Error
+                      if(mMediaUri==null){
+                          
+                          Toast.makeText(MainActivity.this,R.string.error_external_storage,Toast.LENGTH_LONG).show();
+                      }
+                      else {
+
+                          //Otherwise, external storage is availbe, and we will go ahead and try using the camera
+                          takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mMediaUri);
+                          startActivityForResult(takePhotoIntent, TAKE_PHOTO_REQUEST);
+                      }
+
+
                       break;
 
                   case 1:  //Take Video
+                      Intent videoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                      mMediaUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
 
+                      //Display an Error
+                      if(mMediaUri==null){
+
+                          Toast.makeText(MainActivity.this,R.string.error_external_storage,Toast.LENGTH_LONG).show();
+                      }
+                      else {
+                          videoIntent.putExtra(MediaStore.EXTRA_OUTPUT,mMediaUri);
+                          videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT,10);
+                          //Set the video qualoty to 0 for lowest quality
+                          videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,0);
+                          
+                          startActivityForResult(videoIntent,TAKE_VIDEO_REQUEST);
+                          
+                      }
                       break;
 
                   case 2:  //Choose Picture
+                      
+                      Intent choosePhotoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                      choosePhotoIntent.setType("image/*");
+                      startActivityForResult(choosePhotoIntent,PICK_PHOTO_REQUEST);
 
                       break;
 
                   case 3:  //Choose Video
+                      Intent chooseVideoIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                      chooseVideoIntent.setType("video/*");
+
+                      //Warn the user to select a small video file
+                      Toast.makeText(MainActivity.this,R.string.video_file_size_warning,Toast.LENGTH_LONG).show();
+
+                      startActivityForResult(chooseVideoIntent, PICK_VIDEO_REQUEST);
 
                       break;
               }
 
            }
-       };
+
+                   
+                   
+                   
+                   
+                   
+                   
+                   private Uri getOutputMediaFileUri(int mediaType) {
+                       // To be safe, you should check that the SDCard is mounted
+                       // using Environment.getExternalStorageState() before doing this.
+
+                       if(isExternalStorageAvailable()){
+
+                           String appName = MainActivity.this.getString(R.string.app_name);
+                           //Get the storage Uri
+
+                           // 1.Get the external storage directory
+                           File mediaStorageDir = new File
+                                   (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),appName);
+
+                           // 2. Create our subdirectory
+                           if(!mediaStorageDir.exists()){
+                               if(!mediaStorageDir.mkdirs()){
+                                   Log.e(TAG,"Failed to create the directory");
+                                   return null;
+                               }
+
+                           }
+
+                           // 3. Create a file name
+                           File mediaFile;
+                           Date now = new Date();
+                           String timestamp = new SimpleDateFormat("yyyyMMdd_HHss", Locale.US).format(now);
+
+
+                           // 4. Create the file
+                           String path = mediaStorageDir.getPath() + File.separator;
+
+                           if( mediaType== MEDIA_TYPE_IMAGE){
+                                //create a file using the path
+                                mediaFile = new File(path + "IMG_" + timestamp + ".jpg");
+                           }
+                           else if(mediaType == MEDIA_TYPE_VIDEO)
+                           {
+                               mediaFile = new File(path + "VID_" + timestamp + ".mp4");
+                           }
+                           else
+                           {
+                               return null;
+                           }
+
+                           return Uri.fromFile(mediaFile);
+                       }
+                       else {
+                           return null;
+                       }
+
+
+                   }
+
+                   private Boolean isExternalStorageAvailable(){
+
+                       //This method tells us, in what state the external storage is in
+                       String state = Environment.getExternalStorageState();
+
+                       if(state.equals(Environment.MEDIA_MOUNTED)){
+                           return true;
+                       }
+                       else {
+                           return false;
+                       }
+                   }
+               };
+
+    
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -153,6 +295,76 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         return super.onOptionsItemSelected(item);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        
+        if(resultCode==RESULT_OK){
+            
+            //Add it to the gallery
+            
+            if(requestCode==PICK_PHOTO_REQUEST || requestCode == PICK_VIDEO_REQUEST)
+            {
+                if(data==null){
+                    Toast.makeText(this, getString(R.string.general_error), Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    mMediaUri = data.getData();  //getData returns an Uri object
+                }
+
+                Log.i(TAG,"Media_Uri: " +mMediaUri );
+
+                if(requestCode==PICK_VIDEO_REQUEST){
+                    //Make sure the file is less than 10 MB
+                    int fileSize = 0;
+                    InputStream inputstream = null;
+                    try {
+                        inputstream = getContentResolver().openInputStream(mMediaUri);
+                        fileSize = inputstream.available();
+                    }
+
+                    catch (FileNotFoundException e){
+
+                        Toast.makeText(this, R.string.error_opeing_file, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    catch (IOException e){
+
+                        Toast.makeText(this,  R.string.error_opeing_file, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    finally {
+                        try {
+                            inputstream.close();
+                        } catch (IOException e) {
+                            //This is intentionally balnk
+                            /*      */
+                        }
+                    }
+                    if(fileSize <= FILE_SIZE_LIMIT)
+                    {
+                        Toast.makeText(this, R.string.error_file_size_too_large,Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                }
+            }
+            else
+            {
+                Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                mediaScanIntent.setData(mMediaUri);
+                sendBroadcast(mediaScanIntent);
+
+            }
+
+        }
+        else if(resultCode==RESULT_CANCELED){
+            Toast.makeText(MainActivity.this,R.string.general_error,Toast.LENGTH_LONG).show();
+        }
     }
 
     private void navigateToLogin() {

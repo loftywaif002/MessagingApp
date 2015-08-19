@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">MessagingApp</string>
 
+    <string name="app_name">MessagingApp</string>
     <string name="title_section1">in-box</string>
     <string name="title_section2">friends</string>
 
@@ -24,6 +24,13 @@
     <string name="menu_editfriends_label">Edit Friends</string>
     <string name="menu_edit_friends_label">Edit Friends</string>
     <string name="error_title">We\'re Sorry</string>
+
+    <string name="error_external_storage">There was a problem accessing your device\'s external storage</string>
+    <string name="general_error">Sorry, There was an error!</string>
+    <string name="video_file_size_warning">The selected video must be less than 10 MB.</string>
+    <string name="error_opeing_file">There was a problem with the selected file</string>
+    <string  name ="error_file_size_too_large">The selected file is too large! Please Select a new file</string>
+
 
     <string name="menu_camera_label">Camera</string>
     <string name="empty_message_inbox_label">No new messages</string>
