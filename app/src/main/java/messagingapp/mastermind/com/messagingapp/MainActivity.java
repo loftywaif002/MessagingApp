@@ -361,6 +361,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             }
 
+            Intent recipientsIntent = new Intent(this,RecipientsActivity.class);
+            recipientsIntent.setData(mMediaUri);
+            startActivity(recipientsIntent);
+
         }
         else if(resultCode==RESULT_CANCELED){
             Toast.makeText(MainActivity.this,R.string.general_error,Toast.LENGTH_LONG).show();

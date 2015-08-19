@@ -13,7 +13,10 @@
     <string name="password_hint">Password</string>
     <string name="login_button_label">Login</string>
     <string name="sign_up_text">Sign Up!</string>
+
     <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="title_activity_recipients">ChooseRecipients</string>
+
     <string name="email_hint">Email</string>
     <string name="sign_up_button_label">Sign Up</string>
     <string name="signup_error_message">Please make sure you enter a username, password, and email address!</string>
@@ -37,6 +40,9 @@
     <string name="empty_message_friends_label">Let\'s add friends</string>
     <string name="title_activity_edit_friends">Edit Friends</string>
 
+    <string name="empty_recipeints_list_label">Choose Some Friends First!</string>
+    <string name="menu_send_label">Send</string>
+
    <string-array name="camera_choices">
 
        <item>Take Picture</item>
@@ -44,7 +50,10 @@
        <item>Choose Picture</item>
        <item>Choose Video</item>
 
-   </string-array>>
+   </string-array>
+
+
+    <string name="hello_world">Hello world!</string>>
 
 
 
