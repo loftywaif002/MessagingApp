@@ -2,6 +2,7 @@ package messagingapp.mastermind.com.messagingapp;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.net.Uri;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,14 +16,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipientsActivity extends AppCompatActivity {
@@ -42,7 +49,9 @@ public class RecipientsActivity extends AppCompatActivity {
 
     protected TextView mTextView;
 
-    protected int getItemCount = 0;
+    protected Uri mMediaUri;
+
+    protected String mFileType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +81,8 @@ public class RecipientsActivity extends AppCompatActivity {
 
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
+        mMediaUri = getIntent().getData();
+        mFileType = getIntent().getExtras().getString(ParseConstants.KEY_FILE_TYPE);
 
 
     }
@@ -174,6 +185,28 @@ public class RecipientsActivity extends AppCompatActivity {
         switch( item.getItemId()){
 
             case R.id.action_send:
+
+                ParseObject message = createMessage(); //Create a ParseObject to create to hold the message
+
+                if(message==null){
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage(R.string.error_selecting_file)
+                            .setTitle(R.string.error_selecting_file_title)
+                            .setPositiveButton(android.R.string.ok, null);
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+
+                else
+                {
+                    send(message);  //Then the send message will send the message
+                    finish();
+                }
+
+
                 return true;
 
         }
@@ -184,5 +217,91 @@ public class RecipientsActivity extends AppCompatActivity {
     }
 
 
+    protected ParseObject createMessage(){
+
+         //Create a new ParseObject
+        ParseObject message = new ParseObject(ParseConstants.CLASS_MESSAGES);
+
+        //Send the message to a sender
+        message.put(ParseConstants.KEY_SENDER_ID,ParseUser.getCurrentUser().getObjectId());
+        message.put(ParseConstants.KEY_SENDER_NAME,ParseUser.getCurrentUser().getUsername());
+        message.put(ParseConstants.KEY_RECIPIENT_IDS,getRecipientIds());
+        message.put(ParseConstants.KEY_FILE_TYPE,mFileType);
+
+        byte[] fileBytes = FileHelper.getByteArrayFromFile(this,mMediaUri);
+
+        if(fileBytes==null)
+        {
+            return null;
+        }
+        else
+        {
+
+            if(mFileType.equals(ParseConstants.TYPE_IMAGE))
+            {
+                //Reduce the size of the file to upload it on the backend
+                fileBytes = FileHelper.reduceImageForUpload(fileBytes);
+            }
+            String fileName = FileHelper.getFileName(this,mMediaUri,mFileType);
+
+            ParseFile file = new ParseFile(fileName,fileBytes);
+
+            //Attach it to the message method
+            message.put(ParseConstants.KEY_FILE,file);
+
+            return message;
+        }
+
+
+
+    }
+
+
+
+    //This Method returns the recipientIds ArrayList
+    protected ArrayList<String> getRecipientIds()
+    {
+        //Create a new ArrayList
+        ArrayList<String> recipientIds = new ArrayList<String>();
+
+        //Check who is checked in the arraylist who is checked
+        for (int i=0;i<mListView.getCount();i++){
+
+             if(mListView.isItemChecked(i)){
+                 recipientIds.add(mFriends.get(i).getObjectId());
+             }
+
+        }
+        return recipientIds;
+
+    }
+
+
+    protected void send(ParseObject message){
+
+        message.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+
+                if(e==null)
+                {
+                    //Success
+                    Toast.makeText(RecipientsActivity.this,R.string.success_message,Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RecipientsActivity.this);
+                    builder.setMessage(R.string.error_sending_message)
+                            .setTitle(R.string.error_selecting_file_title)
+                            .setPositiveButton(android.R.string.ok, null);
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
+            }
+        });
+
+    }
 
 }
