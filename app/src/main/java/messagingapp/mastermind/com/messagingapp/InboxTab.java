@@ -116,6 +116,10 @@ public class InboxTab extends ListFragment{
         else
         {
            //View the Video
+
+            Intent intent = new Intent(Intent.ACTION_VIEW,fileUri);
+            intent.setDataAndType(fileUri,"video/*");
+            startActivity(intent);
         }
     }
 
