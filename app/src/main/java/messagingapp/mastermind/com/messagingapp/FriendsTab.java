@@ -57,6 +57,8 @@ public class FriendsTab extends ListFragment {
 
                 if (e == null) {
                     mFriends = friends;
+
+
                     String[] usernames = new String[mFriends.size()];
 
                     //For loop to iterate through the list of users
@@ -69,6 +71,8 @@ public class FriendsTab extends ListFragment {
 
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getListView().getContext(), android.R.layout.simple_list_item_1, usernames);
                     setListAdapter(adapter);
+
+
                 } else {
                     Log.e(TAG, e.getMessage());
                     AlertDialog.Builder builder = new AlertDialog.Builder(getListView().getContext());
