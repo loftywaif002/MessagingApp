@@ -58,7 +58,8 @@
    </string-array>
 
 
-    <string name="hello_world">Hello world!</string>>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_view_image">MessagingApp</string>>
 
 
 
