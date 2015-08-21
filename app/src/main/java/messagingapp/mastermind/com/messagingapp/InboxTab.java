@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -18,6 +19,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,15 +77,20 @@ public class InboxTab extends ListFragment{
                         i++;
                     }
 
-                    MessageAdapter adapter = new MessageAdapter(getListView().getContext(),mMessages);
-                    setListAdapter(adapter);
+                    if(getListView().getAdapter()==null){
+                        MessageAdapter adapter = new MessageAdapter(getListView().getContext(),mMessages);
+                        setListAdapter(adapter);
+
+
+                    }
+                    else {
+                             //Refill the adapter
+                        ((MessageAdapter)getListView().getAdapter()).refill(mMessages);
+
+                    }
 
                 }
-                else
-                {
 
-
-                }
             }
         });
 
@@ -121,6 +128,29 @@ public class InboxTab extends ListFragment{
             intent.setDataAndType(fileUri,"video/*");
             startActivity(intent);
         }
+
+
+        //Delete the message!
+        List<String> ids = message.getList(ParseConstants.KEY_RECIPIENT_IDS);
+
+        if(ids.size()==1){
+            //This is the last recipient, so delete the whole thing
+
+             message.deleteInBackground();
+        }
+        else
+        {
+            //Remove the message and save
+            ids.remove(ParseUser.getCurrentUser().getObjectId());
+
+            ArrayList<String> idsToRemove = new ArrayList<String>();
+            idsToRemove.add(ParseUser.getCurrentUser().getObjectId());
+
+            message.removeAll(ParseConstants.KEY_RECIPIENT_IDS,idsToRemove);
+
+            message.saveInBackground();
+        }
+
     }
 
 

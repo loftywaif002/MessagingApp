@@ -55,6 +55,8 @@ public class MessageAdapter extends ArrayAdapter<ParseObject> {
 
             holder = (ViewHolder)convertView.getTag();
 
+
+
         }
         ParseObject message = mMessages.get(position);
 
@@ -87,6 +89,14 @@ public class MessageAdapter extends ArrayAdapter<ParseObject> {
 
     }
 
+
+    public void refill(List<ParseObject> messages){
+
+        mMessages.clear();
+        mMessages.addAll(messages);
+        notifyDataSetChanged();
+
+    }
 
 
 }
